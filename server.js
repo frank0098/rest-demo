@@ -1,6 +1,6 @@
 var express = require('express');
 var mongoose = require('mongoose');
-var PersonSchema = require('./models/Person');
+var PersonSchema = require('./models/person');
 var bodyParser = require('body-parser');
 var router = express.Router();
 var url = require('url');
