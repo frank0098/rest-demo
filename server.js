@@ -42,7 +42,7 @@ personRoute.get(function(req, res) {
         } else {
             ret = []
             for (var x = 0; x < obj.length; x++) {
-                var url = ret_prefix + "/"+obj[x]["_id"];
+                var url = ret_prefix +obj[x]["_id"];
                 ret.push({
                     "url": url
                 });
