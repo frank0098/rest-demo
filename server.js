@@ -14,7 +14,21 @@ var allowCrossDomain = function(req, res, next) {
     next();
 };
 app.use(allowCrossDomain);
-app.use(bodyParser.text());
+app.use(bodyParser.json());
+
+app.use(function (error, req, res, next) {
+ var ret_prefix = req.protocol + '://' + req.get('host') + req.originalUrl;
+  if (error instanceof SyntaxError) {
+    res.json({
+                "verb": req.method,
+                "url": ret_prefix,
+                "message": "Invalid JSON Object"
+            });
+  } else {
+    next();
+  }
+});
+
 app.use('/api', router);
 var homeRoute = router.route('/');
 homeRoute.get(function(req, res) {
@@ -68,12 +82,12 @@ function IsJsonString(str) {
 personRoute.post(function(req, res, next) {
     var data = req.body;
     var ret_prefix = req.protocol + '://' + req.get('host') + req.originalUrl;
-    if (data.length > 1) {
-        if (data.charAt(0) == '\'' && data.charAt(data.length - 1) == '\'')
-			            data = data.substring(1, data.length - 1)
-        else if (data.charAt(0) == '"' && data.charAt(data.length - 1) == '"')
-            data = data.substring(1, data.length - 1)
-    }
+    // if (data.length > 1) {
+    //     if (data.charAt(0) == '\'' && data.charAt(data.length - 1) == '\'')
+			 //            data = data.substring(1, data.length - 1)
+    //     else if (data.charAt(0) == '"' && data.charAt(data.length - 1) == '"')
+    //         data = data.substring(1, data.length - 1)
+    // }
 
     if (data == undefined) {
         res.status(500)
@@ -83,16 +97,18 @@ personRoute.post(function(req, res, next) {
             "message": "Internal Error"
         });
     }
-    if (IsJsonString(data) == false) {
-        res.status(500)
-        res.json({
-            "verb": "POST",
-            "url": ret_prefix,
-            "message": "Invalid Json Object"
-        });
+    else{
 
-    }
-    var obj_data = JSON.parse(data)
+    // if (IsJsonString(data) == false) {
+    //     res.status(500)
+    //     res.json({
+    //         "verb": "POST",
+    //         "url": ret_prefix,
+    //         "message": "Invalid Json Object"
+    //     });
+
+    // }
+    var obj_data = data;
 
     var new_obj = new PersonSchema(obj_data);
     new_obj.save(function(err, post) {
@@ -112,6 +128,9 @@ personRoute.post(function(req, res, next) {
             res.json(post);
         }
     })
+
+    }
+    
 })
 persondetailRoute.get(function(req, res) {
     var ret_prefix = req.protocol + '://' + req.get('host') + req.originalUrl;
@@ -225,20 +244,21 @@ persondetailRoute.put(function(req, res, next) {
             if (user.length != 0) {
                 var data = req.body;
 
-                if (data.length >=2 ) {
-			        if (data.charAt(0) == '\'' && data.charAt(data.length - 1) == '\'')
-			            data = data.substring(1, data.length - 1)
-			        else if (data.charAt(0) == '"' && data.charAt(data.length - 1) == '"')
-			            data = data.substring(1, data.length - 1)
-			    }
-                if (IsJsonString(data) == false) {
-                    res.status(500)
-                    res.json({
-                        "verb": "PUT",
-                        "url": ret_prefix,
-                        "message": "Invalid Json Object"
-                    });
-                } else {
+       //          if (data.length >=2 ) {
+			    //     if (data.charAt(0) == '\'' && data.charAt(data.length - 1) == '\'')
+			    //         data = data.substring(1, data.length - 1)
+			    //     else if (data.charAt(0) == '"' && data.charAt(data.length - 1) == '"')
+			    //         data = data.substring(1, data.length - 1)
+			    // }
+                // if (IsJsonString(data) == false) {
+                //     res.status(500)
+                //     res.json({
+                //         "verb": "PUT",
+                //         "url": ret_prefix,
+                //         "message": "Invalid Json Object"
+                //     });
+                // } else 
+                {
                 	var condition={}
                 	var ll=[]
 	                var unset={}
@@ -248,7 +268,7 @@ persondetailRoute.put(function(req, res, next) {
 	                    }
 	                //if empty object
 	                // console.log(data)
-                	var obj_data = JSON.parse(data)
+                	var obj_data = data;
                 	if(Object.keys(obj_data).length==0){
                 		for (var x=0;x<ll.length;x++){
 	                    	if(ll[x]!='_id' && ll[x]!='__v'){
